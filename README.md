@@ -27,7 +27,7 @@ Focuses on integrating threat intelligence and incident response workflows along
 | MISP | Threat intelligence platform and IOC sharing |
 | theHive | Security incident case management |
 
-→ See [`Stack-1/`](./Forenzy_Manan_Docs/overview.md) for setup guide.
+→ See [`Forenzy_Manan_Docs/`](./Forenzy_Manan_Docs/overview.md) for setup guide.
 
 ---
 
@@ -44,7 +44,7 @@ Focuses on centralized log management, dashboarding, and digital forensics/incid
 
 > **Note:** In this stack, Wazuh, Graylog, and Grafana are deployed on the same machine to optimize hardware resource utilization.
 
-→ See [`Stack-2/`](./Forenzy_Manan_Docs_2/overview.md) for setup guide.
+→ See [`Forenzy_Manan_Docs_2/`](./Forenzy_Manan_Docs_2/overview.md) for setup guide.
 
 ---
 
