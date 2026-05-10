@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Grafana configuration guide</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="grafana-configuration-guide">Grafana configuration guide</h1>
+<ul>
+<li>Grafana is the perfect visualization tool when it comes to visualizing our security events. Kibana (Wazuh-Dashboards) can also be used to visualize our data, but over the years I have not been impressed with Kibana’s visualizations, difficulty to customize, lack of unique data sources, and overall speed. In my opinion, Grafana is the best visualization tool for all SIEM stacks.</li>
+</ul>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\grafana-1.png" alt=""></p>
+<h2 id="grafana-visualization-panels">Grafana Visualization Panels</h2>
+<ul>
+<li>
+<p>Visualization panels are the building blocks that make up our dashboards. Dashboards are simply a combination of visualization panels pieced together to form a concise and accurate representation of the intent of the dashboard. Grafana’s wide range of visualization panels provides more flexibility and ease of “understanding the big picture” than is offered in Kibana.</p>
+</li>
+<li>
+<p>The Grafana community is strong and the ability to import prebuilt dashboards built by others in a matter of seconds allows us to start visualizing our data in no time!</p>
+</li>
+<li>
+<p>Customization is limitless with Grafana’s provided ability for us to write our own HTML and CSS panels. Grafana makes it simple for us to add our own branding and unique feel to our dashboards!</p>
+</li>
+</ul>
+<h2 id="grafana-unique-data-sources">Grafana Unique Data Sources</h2>
+<ul>
+<li>
+<p>Often times, the data that we want to display within our dashboards does not reside in just one datasource. I could have my SIEM logs being written to Elasticsearch, a MySQL database storing my threat intel, and a CSV file storing CNs and their associated DCs. Rather than trying to funnel that data into Elasticsearch, we can configure multiple data sources within Grafana with ease!</p>
+</li>
+<li>
+<p><strong><em>Very Important Note</em></strong> (Your machine should allow SSH traffic on specified ports like 3000, 3500) OR else you can configure the machine such that it allows all traffic on all ports if you want to change the port configs.</p>
+</li>
+<li>
+<p>You can modify the traffic policies as per security requirement in your organization !!!</p>
+</li>
+</ul>
+<h3 id="reference-important-"><strong><a href="https://github.com/grafana/grafana?pg=oss-graf&amp;plcmt=hero-btn-3">Reference (Important !!!!!)</a></strong></h3>
+<h3 id="installation-documentation"><strong><a href="https://grafana.com/docs/grafana/latest/setup-grafana/installation/">Installation Documentation</a></strong></h3>
+<hr>
+<h1 id="installation"><strong><strong>Installation</strong></strong></h1>
+<h3 id="very-important--here-i-have-used-debian-based-os--if-you-are-on-other-os-then-please-refer-the-link-given-below"><strong><strong>VERY IMPORTANT : HERE I HAVE USED DEBIAN BASED &quot;OS&quot;  IF YOU ARE ON OTHER &quot;OS&quot; THEN PLEASE REFER THE LINK GIVEN BELOW</strong></strong></h3>
+<h2 id="reference-step-by-step"><strong><a href="https://grafana.com/docs/grafana/latest/setup-grafana/installation/debian/">Reference Step-by-Step</a></strong></h2>
+<h1 id="steps">STEPS</h1>
+<hr>
+<h4 id="1-lets-now-install-grafana-this-guide-details-installing-the-oss-version-of-grafana-on-a-debian-11-machine">1. Let’s now install Grafana. This guide details installing the OSS version of Grafana on a Debian 11 machine.</h4>
+<pre><code>$  sudo apt-get install -y apt-transport-https
+$  sudo apt-get install -y software-properties-common wget
+$  sudo wget -q -O /usr/share/keyrings/grafana.key https://apt.grafana.com/gpg.key
+
+</code></pre>
+<h4 id="2-add-the-repository">2. Add the repository:</h4>
+<pre><code>$  echo &quot;deb [signed-by=/usr/share/keyrings/grafana.key] https://apt.grafana.com stable main&quot; | sudo tee -a /etc/apt/sources.list.d/grafana.list
+</code></pre>
+<h4 id="3-install-packages">3. INstall packages.</h4>
+<pre><code>$  sudo apt-get update
+$  sudo apt-get install grafana
+</code></pre>
+<h4 id="4-open-the-etcgrafanagrafanaini-file-to-apply-configuration-settings-to-your-grafana-instance-here-we-can-configure-our-authentication-mechanism-https-certificates-and-much-moreadding-certificates">4. Open the /etc/grafana/grafana.ini file to apply configuration settings to your Grafana instance. Here we can configure our authentication mechanism, HTTPS certificates, and much more!(Adding Certificates)</h4>
+<pre><code>#################################### Server ####################################
+[server]
+# Protocol (http, https, h2, socket)
+protocol = https
+
+# The ip address to bind to, empty will bind to all interfaces
+;http_addr =
+
+# The http port  to use
+;http_port = 3000
+
+# The public facing domain name used to access grafana from a browser
+domain = grafana.yourdomain.com
+
+# Redirect to correct domain if host header does not match domain
+# Prevents DNS rebinding attacks
+;enforce_domain = false
+
+# The full public facing url you use in browser, used for redirects and emails
+# If you use reverse proxy and sub path specify full url (with sub path)
+;root_url = %(protocol)s://%(domain)s:%(http_port)s/
+root_url = %(protocol)s://%(domain)s/
+
+# Serve Grafana from subpath specified in `root_url` setting. By default it is set to `false` for compatibility reasons.
+;serve_from_sub_path = false
+
+# Log web requests
+;router_logging = false
+
+# the path relative working path
+;static_root_path = public
+
+# enable gzip
+;enable_gzip = false
+
+# https certs &amp; key file
+cert_file = /etc/ssl/certs/*grafanacert*.pem
+cert_key = /etc/ssl/private/*grafanakey*.key
+
+# Unix socket path
+;socket =
+
+# CDN Url
+;cdn_url =
+
+# Sets the maximum time using a duration format (5s/5m/5ms) before timing out read of an incoming request and closing idle connections.
+# `0` means there is no timeout for reading the request.
+;read_timeout = 0
+
+#################################### Database ####################################
+</code></pre>
+<h4 id="5-ensure-grafana-has-permissions-to-read-your-cert-and-key">5. ENSURE GRAFANA HAS PERMISSIONS TO READ YOUR CERT AND KEY</h4>
+<h4 id="6-lets-now-start-up-grafana">6. Let’s now start up Grafana</h4>
+<pre><code>$  systemctl start grafana-server
+</code></pre>
+<hr>
+<h1 id="configuring-our-wazuh-indexer-data-source"><strong><strong>Configuring Our Wazuh Indexer Data Source</strong></strong></h1>
+<ul>
+<li>ith Grafana installed and running, let’s now configure Grafana so that it can read our ingested SIEM logs stored within our Wazuh Indexer.</li>
+</ul>
+<h4 id="1-select-configuration---data-sources">1. Select Configuration -&gt; Data Sources</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\grafana-3.png" alt=""></p>
+<h4 id="2-select-elasticsearch--remember-that-at-the-end-of-the-day-the-wazuh-indexer-is-elasticsearch-7102">2. Select Elasticsearch — Remember that at the end of the day the Wazuh-Indexer is Elasticsearch 7.10.2</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\grafana-4.png" alt=""></p>
+<h4 id="3-set-your-elasticsearch-connection-settings-see-walkthrough-video-to-configure-grafana-user-within-our-wazuh-indexer">3. Set your Elasticsearch connection settings (see walkthrough video to configure grafana user within our Wazuh Indexer)</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\grafana-5.png" alt=""></p>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\grafana-6.png" alt=""></p>
+<h4 id="above-url-blocks">Above URL blocks:</h4>
+<pre><code>https://nvd.nist.gov/vuln/detail/${__value.raw}
+
+https://grafana.*yourdomain*.com/explore?left=%5B%22now-6h%22,%22now%22,%22WAZUH%22,%7B%22refId%22:%22A%22,%22query%22:%22_id:${__value.raw}%22,%22alias%22:%22%22,%22metrics%22:%5B%7B%22id%22:%221%22,%22type%22:%22logs%22,%22settings%22:%7B%22limit%22:%22500%22%7D%7D%5D,%22bucketAggs%22:%5B%5D,%22timeField%22:%22timestamp%22%7D%5D
+</code></pre>
+<h4 id="4-save-and-test">4. Save and Test</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\grafana-7.png" alt=""></p>
+<h4 id="5-select-explore-to-ensure-grafana-is-able-to-load-the-data">5. Select Explore to ensure Grafana is able to load the data</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\grafana-8.png" alt=""></p>
+<hr>
+<h2 id="now-you-can-create-your-customize-grafana-dashboard-">Now you can create your customize grafana dashboard !!!</h2>
+<h3 id="i-have-created-my-dashboard-which-looks-like-following">I have created my dashboard which looks like following,</h3>
+<h2 id=""><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\grafana-2.png" alt=""></h2>
+<h3 id="you-can-refer-the-given-following-blog-to-create-your-own-dashboard">You can refer the given following blog to create your own dashboard.</h3>
+<h3 id="create-your-first-dashboard"><strong><a href="https://socfortress.medium.com/part-6-best-open-source-siem-dashboards-5dad09fa4d0e">Create Your First Dashboard</a></strong></h3>
+<hr>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

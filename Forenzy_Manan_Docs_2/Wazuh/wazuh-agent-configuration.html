@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&ast;&ast;&lowbar;&lowbar;Wazuh Agents Installation and Configuration&lpar;Wazuh 4&period;7&rpar;&lowbar;&lowbar;&ast;&ast;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="wazuh-agents-installation-and-configurationwazuh-47"><strong><strong>Wazuh Agents Installation and Configuration(Wazuh 4.7)</strong></strong></h1>
+<h4 id="--the-wazuh-agent-is-multi-platform-and-runs-on-the-endpoints-that-the-user-wants-to-monitor-it-communicates-with-the-wazuh-server-sending-data-in-near-real-time-through-an-encrypted-and-authenticated-channel">- The Wazuh agent is multi-platform and runs on the endpoints that the user wants to monitor. It communicates with the Wazuh server, sending data in near real-time through an encrypted and authenticated channel.</h4>
+<h4 id="--the-agent-was-developed-considering-the-need-to-monitor-a-wide-variety-of-different-endpoints-without-impacting-their-performance-it-is-supported-on-the-most-popular-operating-systems-and-it-requires-35-mb-of-ram-on-average">- The agent was developed considering the need to monitor a wide variety of different endpoints without impacting their performance. It is supported on the most popular operating systems, and it requires 35 MB of RAM on average.</h4>
+<h4 id="--the-wazuh-agent-provides-key-features-to-enhance-your-systems-security">- The Wazuh agent provides key features to enhance your system’s security.</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\wazuh-7.png" alt=""></p>
+<h2 id="reference-important-"><strong><strong><a href="https://documentation.wazuh.com/current/installation-guide/wazuh-agent/index.html">REFERENCE (Important !!!)</a></strong></strong></h2>
+<h4 id="--very-important-note-your-machine-should-allow-ssh-trafic-on-specified-ports-or-else-you-can-configure-the-machine-such-that-it-allows-all-traffic-on-all-ports-if-you-want-to-change-the-port-configs">- <strong><em>Very Important Note</em></strong> (Your machine should allow SSH trafic on specified ports) OR else you can configure the machine such that it allows all traffic on all ports if you want to change the port configs.</h4>
+<h5 id="--you-can-modify-the-traffic-policies-as-per-security-requirement-in-your-organization-">- You can modify the traffic policies as per security requirement in your organization !!!</h5>
+<h2 id="here-i-have-configured-wazuh-agents-only-on-linux-machine-by-referring-the-given-link-you-install-same-for-other-operating-systems-also"><strong>HERE I HAVE CONFIGURED WAZUH AGENTS ONLY ON LINUX MACHINE, BY REFERRING THE GIVEN LINK YOU INSTALL SAME FOR OTHER OPERATING SYSTEMS ALSO</strong></h2>
+<h4 id="you-can-refer-this-youtube-video-only-for-installing-wazuh-agent"><a href="https://youtu.be/jByhKaK7STg?si=drsHbBpiBgE79E-i">you can refer this youtube video (<strong>ONLY FOR INSTALLING WAZUH AGENT</strong>)</a></h4>
+<h4 id="the-agent-runs-on-the-host-you-want-to-monitor-and-communicates-with-the-wazuh-server-sending-data-in-near-real-time-through-an-encrypted-and-authenticated-channel">The agent runs on the host you want to monitor and communicates with the Wazuh server, sending data in near real-time through an encrypted and authenticated channel.</h4>
+<p>##(YOU CAN ALSO ADD THE AGENT USING WAZUH DASHBOARD !!!)</p>
+<h4 id="--you-can-also-deploy-a-new-agent-following-the-instructions-in-the-wazuh-dashboard-go-to-wazuh--agents-and-click-on-deploy-new-agent">- You can also deploy a new agent following the instructions in the Wazuh dashboard. Go to Wazuh &gt; Agents, and click on Deploy new agent.</h4>
+<p>#STEPS</p>
+<h4 id="1-install-the-gpg-key">1. Install the GPG key:</h4>
+<pre><code>$  curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import &amp;&amp; chmod 644 /usr/share/keyrings/wazuh.gpg
+</code></pre>
+<h4 id="2-add-the-repository">2. Add the repository:</h4>
+<pre><code>$  echo &quot;deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main&quot; | tee -a /etc/apt/sources.list.d/wazuh.list
+</code></pre>
+<h4 id="3-update-the-package-information">3. Update the package information:</h4>
+<pre><code>$  apt-get update
+</code></pre>
+<h4 id="4-to-deploy-the-wazuh-agent-on-your-endpoint-select-your-package-manager-and-edit-the-wazuh_manager-variable-to-contain-your-wazuh-manager-ip-address-or-hostname">4. To deploy the Wazuh agent on your endpoint, select your package manager and edit the WAZUH_MANAGER variable to contain your Wazuh manager IP address or hostname.</h4>
+<pre><code>WAZUH_MANAGER=&quot;10.0.0.2&quot; apt-get install wazuh-agent #change WAZUH_MANAGER variable with public IP address of your wazuh server
+</code></pre>
+<h4 id="5-enable-and-start-the-wazuh-agent-service">5. Enable and start the Wazuh agent service.</h4>
+<pre><code>$  systemctl daemon-reload
+$  systemctl enable wazuh-agent
+$  systemctl start wazuh-agent
+</code></pre>
+<h2 id="now-you-can-verify-that-your-agent-is-connected-or-not-by-simply-seeing-it-in-wazuh-dashboard-or-using-tail--f-varosseclogsosseclog-command">Now you can verify that your agent is connected or not by simply seeing it in Wazuh Dashboard OR using &quot;tail -f /var/ossec/logs/ossec.log&quot; command.</h2>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

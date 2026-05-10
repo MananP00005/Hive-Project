@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Graylog and Greynoise configuration guide</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="graylog-and-greynoise-configuration-guide">Graylog and Greynoise configuration guide</h1>
+<ul>
+<li>we configured Graylog to receive, parse, and write our collected firewall logs into our SIEM backend. While this is great for visualizing our data, let’s take it a step further and enrich our collected firewall logs with threat intelligence provided by GREYNOISE.</li>
+</ul>
+<h1 id="steps"><strong><strong>STEPS</strong></strong></h1>
+<hr>
+<h3 id="stage-1--configure-greynoise"><strong><strong>STAGE-1 : Configure Greynoise</strong></strong></h3>
+<h4 id="1-logs-forwarded-from-wazuh-server-to-graylog">1. Logs forwarded from Wazuh Server to Graylog.</h4>
+<h4 id="2-graylog-checks-if-the-received-log-contains-the-field-name-destip">2. Graylog checks if the received log contains the field name DestIP</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-1.png" alt=""></p>
+<h4 id="3-graylog-invokes-the-greynoise-api-and-receives-the-response">3. Graylog invokes the GREYNOISE API and receives the response</h4>
+<h4 id="4-graylog-enriches-the-original-log-with-the-greynoise-response">4. Graylog enriches the original log with the GREYNOISE response</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-2.png" alt=""></p>
+<h4 id="5-graylog-writes-the-log-to-the-siem-backend-wazuh-indexer">5. Graylog writes the log to the SIEM Backend (Wazuh-Indexer)</h4>
+<hr>
+<h2 id="create-data-adapter"><strong><strong>Create Data Adapter</strong></strong></h2>
+<ul>
+<li>Within Graylog, we first need to create a Data Adapter . The Data Adapter is where we configure the API request that will be made, such as the URL, Auth keys, Headers, etc.</li>
+</ul>
+<h4 id="1-navigate-to-system---lookup-tables-and-select-data-adapters-">1. Navigate to System -&gt; Lookup Tables and select Data Adapters .</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-3.png" alt=""></p>
+<h4 id="2-select-greynoise-community-ip-lookup-and-configure-the-data-adapter-with-your-api-key">2. Select GreyNoise Community IP Lookup and configure the Data Adapter with your API key.</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-4.png" alt=""></p>
+<h4 id="3-verify-your-api-key-is-correct-by-testing-a-lookup-for-458366207">3. Verify your API key is correct by testing a lookup for 45.83.66.207</h4>
+<h2 id=""><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-5.png" alt=""></h2>
+<h2 id="create-data-cache"><strong><strong>Create Data Cache</strong></strong></h2>
+<ul>
+<li>
+<p>Another benefit with using Graylog is the built in Data Caching. Most API services limit the amount of API requests that end users are allowed to make over a given timeframe. This limitation results in our automated Threat Intel providing no value once our API limit has been reached.</p>
+</li>
+<li>
+<p>To combat this issue, we implement Graylog Data Caching. The caches are responsible for caching the lookup results to improve the lookup performance and/or to avoid overloading databases and APIs. Prior to invoking an API call to Greynoise, Graylog will first check the internal cache. If the DestIP was previously enriched with Greynoise API results, those entries are stored within the Graylog Data Cache, and there is no need for Graylog to invoke the Greynoise API again. Thus saving our API quota.</p>
+</li>
+</ul>
+<h4 id="1-navigate-to-system---lookup-tables-and-select-caches-">1. Navigate to System -&gt; Lookup Tables and select Caches .</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-6.png" alt=""></p>
+<h4 id="2-create-the-cache-to-hold-greynoise-api-results">2. Create the Cache to hold Greynoise API results.</h4>
+<h2 id="-1"><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-7.png" alt=""></h2>
+<h2 id="create-lookup-table"><strong><strong>Create Lookup Table</strong></strong></h2>
+<ul>
+<li>The lookup table component ties together a data adapter instance and a cache instance. It is needed to actually enable the usage of the lookup table in extractors, converters, pipeline functions and decorators.</li>
+</ul>
+<h4 id="1-navigate-to-system---lookup-tables-and-select-lookup-tables-">1. Navigate to System -&gt; Lookup Tables and select Lookup Tables .</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-8.png" alt=""></p>
+<h4 id="2-configure-the-greynoise-lookup-table-ensure-you-point-to-your-previously-created-data-adapter-and-cache-">2. Configure the Greynoise Lookup Table. Ensure you point to your previously created Data Adapter and Cache .</h4>
+<h2 id="-2"><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-9.png" alt=""></h2>
+<h2 id="creating-pipeline-rule"><strong><strong>Creating Pipeline Rule</strong></strong></h2>
+<ul>
+<li>With our Lookup Table configured, we need to tell Graylog when we want to invoke the Greynoise API. This is acheived by creating a Pipeline Rule .</li>
+</ul>
+<h4 id="1-navigate-to-system---pipelines-and-select-manage-rules">1. Navigate to System -&gt; Pipelines and select Manage rules.</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-10.png" alt=""></p>
+<h4 id="2-create-the-greynoise-lookup-on-destip-rule">2. Create the GreyNoise Lookup on DestIP Rule</h4>
+<pre><code>rule &quot;GreyNoise Lookup on DestIP&quot;
+when
+    has_field(&quot;DestIP&quot;)
+then
+    let ldata = lookup(
+        lookup_table: &quot;greynoise&quot;,
+        key: to_string($message.DestIP)
+    );
+    set_fields(
+        fields: ldata,
+        prefix: &quot;greynoise_&quot;
+        );
+end
+</code></pre>
+<ul>
+<li>We are instructing Graylog to use the greynoise Lookup table only when the consumed log has the DestIP field. The set_fields function is responsible for enriching our log with the response back from Greynoise and adding the prefix of greynoise_ to every field name.</li>
+</ul>
+<h4 id="3-create-the-greynoise-pipeline-and-add-your-wazuh-stream">3. Create the Greynoise Pipeline and add your wazuh stream.</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-11.png" alt=""></p>
+<h4 id="4-within-stage-0-add-the-greynoise-lookup-on-destip-pipeline-rule">4. Within Stage 0 add the GreyNoise Lookup on DestIP pipeline rule.</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-12.png" alt=""></p>
+<h2 id="now-you-will-get-the-result-as-following-">Now you will get the result as following !!!!</h2>
+<h2 id="-3"><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-greynoise-13.png" alt=""></h2>
+<h3 id="you-can-now-start-to-build-dashboards-such-as-we-did-in-graylog-wazuh-configuration-and-alerts-to-notify-the-soc-team-when-greynoise-detects-a-malicious-ip-address-contained-within-your-wazuh-logs">You can now start to build dashboards, such as we did in Graylog-Wazuh configuration, and alerts to notify the SOC team when Greynoise detects a malicious IP address contained within your Wazuh logs!</h3>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

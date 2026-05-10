@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&ast;&ast;&lowbar;&lowbar;DFIR-IRIS Configuration&lowbar;&lowbar;&ast;&ast;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="dfir-iris-configuration"><strong><strong>DFIR-IRIS Configuration</strong></strong></h1>
+<h2 id="intro"><strong>Intro</strong></h2>
+<h4 id="incident-response-platforms-irps-are-an-essential-tool-for-organizations-of-all-sizes-and-industries-as-they-provide-a-centralized-platform-for-managing-incident-response-activities-and-help-organizations-respond-quickly-and-effectively-to-cyber-incidents-by-using-irps-organizations-can-reduce-the-impact-of-cyber-incidents-minimize-the-risk-of-data-breaches-and-ensure-compliance-with-industry-regulations">Incident Response Platforms (IRPs) are an essential tool for organizations of all sizes and industries, as they provide a centralized platform for managing incident response activities and help organizations respond quickly and effectively to cyber incidents. By using IRPs, organizations can reduce the impact of cyber incidents, minimize the risk of data breaches, and ensure compliance with industry regulations.</h4>
+<h4 id="incident-response-platforms-irps-are-the-second-most-crucial-component-of-any-security-information-and-event-management-siem-stack-following-the-ingestion-of-logs">Incident Response Platforms (IRPs) are the second most crucial component of any Security Information and Event Management (SIEM) stack, following the ingestion of logs.</h4>
+<h4 id="they-provide-a-centralized-platform-for-managing-incident-response-activities-including-threat-detection-incident-triage-incident-investigation-and-incident-resolution">They provide a centralized platform for managing incident response activities, including threat detection, incident triage, incident investigation, and incident resolution.</h4>
+<ul>
+<li>Incident triage</li>
+<li>Incident investigation</li>
+<li>Incident investigation</li>
+<li>Compliance and reporting</li>
+</ul>
+<h4 id="prior-to-a-change-in-their-licensing-thehive-was-the-premier-open-source-solution-for-our-incident-response-needs-unfortunately-the-modification-to-the-license-at-the-end-of-2022-resulted-in-a-significant-reduction-of-the-features-available-in-the-free-version-of-the-platform">Prior to a change in their licensing, TheHIVE was the premier open-source solution for our incident response needs. Unfortunately, the modification to the license at the end of 2022 resulted in a significant reduction of the features available in the free version of the platform.</h4>
+<h4 id="while-soc-teams-scrambled-to-find-a-competent-replacement-dfir-iris-remained-at-the-ready-eagerly-awaiting-its-chance-to-demonstrate-its-capabilities">While SOC teams scrambled to find a competent replacement, DFIR-IRIS remained at the ready, eagerly awaiting its chance to demonstrate its capabilities.</h4>
+<h4 id="iris-checks-off-all-the-boxes-when-it-comes-to-what-features-any-incident-response-platform-must-contain">IRIS checks off all the boxes when it comes to what features any Incident Response Platform must contain.</h4>
+<h2 id="features-of-dfir-iris"><strong><strong>Features of DFIR-IRIS</strong></strong></h2>
+<h4 id="incident-management--dfir-iris-allows-incident-responders-to-create-track-and-manage-incidents-including-incident-triage-investigation-and-resolution"><strong>Incident management</strong> : DFIR-IRIS allows incident responders to create, track, and manage incidents, including incident triage, investigation, and resolution.</h4>
+<h4 id="evidence-management--dfir-iris-allows-incident-responders-to-collect-preserve-and-analyze-digital-evidence-including-system-images-network-traffic-and-log-files"><strong>Evidence management</strong> : DFIR-IRIS allows incident responders to collect, preserve, and analyze digital evidence, including system images, network traffic, and log files.</h4>
+<h4 id="reporting--dfir-iris-provides-a-range-of-reporting-and-documentation-capabilities-including-incident-reports-case-summaries-and-timelines"><strong>Reporting</strong> : DFIR-IRIS provides a range of reporting and documentation capabilities, including incident reports, case summaries, and timelines.</h4>
+<h4 id="integration--dfir-iris-allows-for-the-integration-with-various-other-tools-such-as-malware-analysis-tools-network-traffic-analysis-tools-and-forensic-tools"><strong>Integration</strong> : DFIR-IRIS allows for the integration with various other tools, such as malware analysis tools, network traffic analysis tools, and forensic tools.</h4>
+<h4 id="collaboration--dfir-iris-allows-incident-responders-to-collaborate-and-share-information-with-other-teams-such-as-incident-response-teams-forensic-teams-and-law-enforcement-agencies"><strong>Collaboration</strong> : DFIR-IRIS allows incident responders to collaborate and share information with other teams, such as incident response teams, forensic teams, and law enforcement agencies.</h4>
+<h2 id=""><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\iris-1.png" alt=""></h2>
+<h2 id="automate-anything-with-modules"><strong><strong>Automate Anything With Modules</strong></strong></h2>
+<h3 id="the-extended-modules-are-the-most-compelling-feature-of-iris-modules-are-very-similar-to-what-thehive-achieves-with-cortexs-analyzers-and-responders-iris-modules-are-split-into-two-types">the extended modules are the most compelling feature of IRIS. Modules are very similar to what TheHIVE achieves with Cortex’s Analyzers and Responders. IRIS modules are split into two types:</h3>
+<h4 id="pipeline-modules--allow-upload-and-process-of-evidences-through-modular-pipelines-eg-evtx-parsing-and-injection-into-a-database-or-data-visualizer">Pipeline modules : Allow upload and process of evidences through modular pipelines (eg: EVTX parsing and injection into a database or data visualizer)</h4>
+<h4 id="processor-modules--allow-processing-of-iris-data-upon-predefined-actions--hooks-eg-be-notified-when-a-new-ioc-is-created-and-get-vtmisp-insights-for-it">Processor modules : Allow processing of IRIS data upon predefined actions / hooks. (eg: be notified when a new IOC is created and get VT/MISP insights for it).</h4>
+<h2 id="-1"><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\iris-2.png" alt=""></h2>
+<h1 id="installation"><em><em>Installation</em></em></h1>
+<h2 id="install-docker-and-docker-compose">Install Docker and Docker-compose</h2>
+<h4 id="note-i-have-done-the-configuration-for-debian">Note: I have done the configuration for Debian.</h4>
+<h4 id="run-the-following-command-to-uninstall-all-conflicting-packages">Run the following command to uninstall all conflicting packages:</h4>
+<pre><code>$  sudo su # get the root privileges
+
+$  apt-get update
+
+$  for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+</code></pre>
+<hr>
+<h3 id="steps-">STEPS :</h3>
+<hr>
+<h4 id="1-set-up-dockers-apt-repository">1. Set up Docker's apt repository.</h4>
+<pre><code># Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  &quot;deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release &amp;&amp; echo &quot;$VERSION_CODENAME&quot;) stable&quot; | \
+  sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+
+sudo apt-get update
+</code></pre>
+<h4 id="2-install-the-docker-packages">2. Install the Docker packages.</h4>
+<ul>
+<li>To install the latest version, run:</li>
+</ul>
+<pre><code>$ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+</code></pre>
+<h4 id="3-verify-that-the-docker-engine-installation-is-successful-by-running-the-hello-world-image">3. Verify that the Docker Engine installation is successful by running the hello-world image.</h4>
+<pre><code> $  sudo docker run hello-world
+
+ $ apt-get update
+</code></pre>
+<h4 id="4-to-download-and-install-compose-standalone-run">4. To download and install Compose standalone, run:</h4>
+<pre><code>$  curl -SL https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+</code></pre>
+<h4 id="5-apply-executable-permissions-to-the-standalone-binary-in-the-target-path-for-the-installation">5. Apply executable permissions to the standalone binary in the target path for the installation.</h4>
+<pre><code>$  chmod +x /usr/local/bin/docker-compose
+
+OR 
+
+$  chmod +x /usr/bin/docker-compose
+</code></pre>
+<h4 id="6-test-the-installation">6. Test the installation.</h4>
+<pre><code>$ docker compose version
+
+#output  : Docker Compose version vx.xx.x
+</code></pre>
+<hr>
+<h2 id="install-dfir-iris">Install DFIR-IRIS</h2>
+<h4 id="to-ease-the-installation-and-upgrades-iris-is-shipped-in-docker-containers-thanks-to-docker-compose-it-can-be-ready-in-a-few-minutes">To ease the installation and upgrades, Iris is shipped in Docker containers. Thanks to Docker compose, it can be ready in a few minutes.</h4>
+<pre><code>#  Clone the iris-web repository
+git clone https://github.com/dfir-iris/iris-web.git
+cd iris-web
+
+# Checkout to the last tagged version 
+git checkout v2.3.7
+
+# Copy the environment file 
+cp .env.model .env
+
+# Build the dockers
+docker compose build
+
+# Run IRIS 
+docker compose up
+</code></pre>
+<h4 id="note--you-will-be-able-to-get-the-administrator-login-credentials-by-seeing-the-logs-of-iris-app-if-you-are-not-able-to-get-them-then-just-follow-the-blog-and-follow-the-video-for-accessing-your-login-credentials-and-a-showcase-of-the-platform">Note : you will be able to get the administrator login credentials by seeing the logs of iris-app, if you are not able to get them then just follow the blog and <strong><strong>FOLLOW THE VIDEO FOR ACCESSING YOUR LOGIN CREDENTIALS AND A SHOWCASE OF THE PLATFORM</strong></strong></h4>
+<h4 id="blog-link-reference"><strong><a href="https://socfortress.medium.com/your-open-source-incident-response-platform-e9d839f02454">BLOG LINK (reference)</a></strong></h4>
+<h4 id="video-link"><strong><a href="https://youtu.be/XXyIv_aes4w">VIDEO LINK</a></strong></h4>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

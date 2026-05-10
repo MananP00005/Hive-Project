@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Graylog and Wazuh configuration guide</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="graylog-and-wazuh-configuration-guide">Graylog and Wazuh configuration guide</h1>
+<ul>
+<li>Our Wazuh Manager is installed, but we need to send the Wazuh alerts to Graylog so it can work its magic and write the logs to our Wazuh-Indexer for storage and searching.</li>
+</ul>
+<h1 id="steps"><strong><strong>STEPS</strong></strong></h1>
+<hr>
+<h3 id="stage-1--configure-graylog-input"><strong><strong>STAGE-1 : Configure Graylog Input</strong></strong></h3>
+<h4 id="1-log-into-graylog-webui-and-navigate-to-system-inputs">1. Log into Graylog WebUI and navigate to System-&gt;Inputs.</h4>
+<h4 id="2-launch-a-new-rawplaintext-tcp-input">2. Launch a new Raw/Plaintext TCP input.</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-wazuh-2.png" alt=""></p>
+<h4 id="3-leave-at-default-settings-and-select-save-graylog-is-now-accepting-tcp-messages-on-port-5555">3. Leave at default settings and select save. Graylog is now accepting TCP messages on port 5555.</h4>
+<hr>
+<h3 id="stage-2--install-fluent-bit-on-wazuh-managerperform-on-wazuh-server"><strong><strong>STAGE-2 : Install Fluent-Bit on Wazuh Manager(Perform on wazuh-server)</strong></strong></h3>
+<h4 id="1-wazuh-agent-collects-endpoint-logs-and-sends-to-manager">1. Wazuh Agent collects endpoint logs and sends to Manager.</h4>
+<h4 id="2-manager-compares-received-logs-against-its-rulesets-if-there-is-a-match-the-log-is-written-to-varosseclogsalertsalertsjson-">2. Manager compares received logs against its rulesets. If there is a match, the log is written to /var/ossec/logs/alerts/alerts.json .</h4>
+<p><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-wazuh-3.png" alt=""></p>
+<h4 id="3-fluent-bit-reads-the-alertsjson-file-and-sends-its-entries-to-our-graylog-input">3. Fluent Bit reads the alerts.json file and sends its entries to our Graylog input.</h4>
+<pre><code>$  curl https://raw.githubusercontent.com/fluent/fluent-bit/master/install.sh | sh
+</code></pre>
+<h4 id="4-edit-the-etcfluent-bitfluent-bitconf-to-collect-the-alertsjson-file-and-send-it-to-graylog">4. Edit the /etc/fluent-bit/fluent-bit.conf to collect the alerts.json file and send it to Graylog:</h4>
+<pre><code>[SERVICE]
+    flush        5
+    daemon       Off
+    log_level    info
+    parsers_file parsers.conf
+    plugins_file plugins.conf
+    http_server  Off
+    http_listen  0.0.0.0
+    http_port    2020
+    storage.metrics on
+    storage.path /var/log/flb-storage/
+    storage.sync normal
+    storage.checksum off
+    storage.backlog.mem_limit 5M
+    Log_File /var/log/td-agent-bit.log
+[INPUT]
+    name  tail
+    path  /var/ossec/logs/alerts/alerts.json
+    tag wazuh
+    parser  json
+    Buffer_Max_Size 5MB
+    Buffer_Chunk_Size 400k
+    storage.type      filesystem
+    Mem_Buf_Limit     512MB
+[OUTPUT]
+    Name  tcp
+    Host  *your graylog host*
+    Port  *your graylog port*
+    net.keepalive off
+    Match wazuh
+    Format  json_lines
+    json_date_key true
+</code></pre>
+<h4 id="5-start-the-service">5. start the service</h4>
+<pre><code>$  systemctl enable fluent-bit
+$  systemctl start fluent-bit
+</code></pre>
+<hr>
+<h3 id="stage-3--wazuh-manager-configurationsregistration-via-password"><strong><strong>STAGE-3 : Wazuh Manager Configurations(Registration Via Password)</strong></strong></h3>
+<h4 id="1-enable-the-password-authentication-option-by-adding-the-configuration-highlighted-below-to-the--section-of-the-manager-configuration-file-varossecetcossecconf">1. Enable the password authentication option by adding the configuration highlighted below to the <auth> section of the manager configuration file /var/ossec/etc/ossec.conf.</h4>
+<pre><code>&lt;auth&gt;
+  &lt;use_password&gt;yes&lt;/use_password&gt;
+&lt;/auth&gt;
+</code></pre>
+<h4 id="2-setting-your-own-password-this-is-done-by-creating-the-file-varossecetcauthdpass-on-the-manager-with-your-password">2. Setting your own password. This is done by creating the file /var/ossec/etc/authd.pass on the manager with your password.</h4>
+<pre><code>$  echo &quot;&lt;CUSTOM_PASSWORD&gt;&quot; &gt; /var/ossec/etc/authd.pass #Replace &lt;CUSTOM_PASSWORD&gt; with your chosen agent enrollment password and run the following command:
+</code></pre>
+<h4 id="3-change-the-authdpass-file-permissions-and-ownership">3. Change the authd.pass file permissions and ownership.</h4>
+<pre><code>chmod 640 /var/ossec/etc/authd.pass
+chown root:wazuh /var/ossec/etc/authd.pass
+</code></pre>
+<h4 id="4-in-order-to-use-wazuh-to-run-a-vulnerability-assessment-on-our-endpoints-we-must-enable-it-via-the-wazuh-managers-varossecetcossecconf-file">4. In order to use Wazuh to run a vulnerability assessment on our endpoints, we must enable it via the Wazuh Managers /var/ossec/etc/ossec.conf file.</h4>
+<pre><code>&lt;vulnerability-detector&gt;
+    &lt;enabled&gt;yes&lt;/enabled&gt;
+    &lt;interval&gt;5m&lt;/interval&gt;
+    &lt;min_full_scan_interval&gt;6h&lt;/min_full_scan_interval&gt;
+    &lt;run_on_start&gt;yes&lt;/run_on_start&gt;
+
+    &lt;!-- Ubuntu OS vulnerabilities --&gt;
+    &lt;provider name=&quot;canonical&quot;&gt;
+      &lt;enabled&gt;yes&lt;/enabled&gt;
+      &lt;os&gt;trusty&lt;/os&gt;
+      &lt;os&gt;xenial&lt;/os&gt;
+      &lt;os&gt;bionic&lt;/os&gt;
+      &lt;os&gt;focal&lt;/os&gt;
+      &lt;os&gt;jammy&lt;/os&gt;
+      &lt;update_interval&gt;1h&lt;/update_interval&gt;
+    &lt;/provider&gt;
+
+    &lt;!-- Debian OS vulnerabilities --&gt;
+    &lt;provider name=&quot;debian&quot;&gt;
+      &lt;enabled&gt;yes&lt;/enabled&gt;
+      &lt;os&gt;stretch&lt;/os&gt;
+      &lt;os&gt;buster&lt;/os&gt;
+      &lt;os&gt;bullseye&lt;/os&gt;
+      &lt;update_interval&gt;1h&lt;/update_interval&gt;
+    &lt;/provider&gt;
+
+    &lt;!-- RedHat OS vulnerabilities --&gt;
+    &lt;provider name=&quot;redhat&quot;&gt;
+      &lt;enabled&gt;yes&lt;/enabled&gt;
+      &lt;os&gt;5&lt;/os&gt;
+      &lt;os&gt;6&lt;/os&gt;
+      &lt;os&gt;7&lt;/os&gt;
+      &lt;os&gt;8&lt;/os&gt;
+      &lt;os&gt;9&lt;/os&gt;
+      &lt;update_interval&gt;1h&lt;/update_interval&gt;
+    &lt;/provider&gt;
+
+    &lt;!-- Amazon Linux OS vulnerabilities --&gt;
+    &lt;provider name=&quot;alas&quot;&gt;
+      &lt;enabled&gt;yes&lt;/enabled&gt;
+      &lt;os&gt;amazon-linux&lt;/os&gt;
+      &lt;os&gt;amazon-linux-2&lt;/os&gt;
+      &lt;update_interval&gt;1h&lt;/update_interval&gt;
+    &lt;/provider&gt;
+
+    &lt;!-- Arch OS vulnerabilities --&gt;
+    &lt;provider name=&quot;arch&quot;&gt;
+      &lt;enabled&gt;yes&lt;/enabled&gt;
+      &lt;update_interval&gt;1h&lt;/update_interval&gt;
+    &lt;/provider&gt;
+
+    &lt;!-- Windows OS vulnerabilities --&gt;
+    &lt;provider name=&quot;msu&quot;&gt;
+      &lt;enabled&gt;yes&lt;/enabled&gt;
+      &lt;update_interval&gt;1h&lt;/update_interval&gt;
+    &lt;/provider&gt;
+
+    &lt;!-- Aggregate vulnerabilities --&gt;
+    &lt;provider name=&quot;nvd&quot;&gt;
+      &lt;enabled&gt;yes&lt;/enabled&gt;
+      &lt;update_from_year&gt;2010&lt;/update_from_year&gt;
+      &lt;update_interval&gt;1h&lt;/update_interval&gt;
+    &lt;/provider&gt;
+
+  &lt;/vulnerability-detector&gt;
+</code></pre>
+<h4 id="5-configure-agent-group-files">5. Configure Agent Group Files</h4>
+<h1 id="linux-group">LINUX GROUP</h1>
+<pre><code>&lt;agent_config&gt;
+	&lt;client_buffer&gt;
+		&lt;!-- Agent buffer options --&gt;
+		&lt;disabled&gt;no&lt;/disabled&gt;
+		&lt;queue_size&gt;5000&lt;/queue_size&gt;
+		&lt;events_per_second&gt;500&lt;/events_per_second&gt;
+	&lt;/client_buffer&gt;
+	&lt;!-- Policy monitoring --&gt;
+	&lt;rootcheck&gt;
+		&lt;disabled&gt;no&lt;/disabled&gt;
+		&lt;!-- Frequency that rootcheck is executed - every 12 hours --&gt;
+		&lt;frequency&gt;43200&lt;/frequency&gt;
+		&lt;rootkit_files&gt;/var/ossec/etc/shared/rootkit_files.txt&lt;/rootkit_files&gt;
+		&lt;rootkit_trojans&gt;/var/ossec/etc/shared/rootkit_trojans.txt&lt;/rootkit_trojans&gt;
+		&lt;system_audit&gt;/var/ossec/etc/shared/system_audit_rcl.txt&lt;/system_audit&gt;
+		&lt;system_audit&gt;/var/ossec/etc/shared/system_audit_ssh.txt&lt;/system_audit&gt;
+		&lt;system_audit&gt;/var/ossec/etc/shared/cis_debian_linux_rcl.txt&lt;/system_audit&gt;
+		&lt;skip_nfs&gt;yes&lt;/skip_nfs&gt;
+	&lt;/rootcheck&gt;
+	&lt;wodle name=&quot;open-scap&quot;&gt;
+		&lt;disabled&gt;yes&lt;/disabled&gt;
+		&lt;timeout&gt;1800&lt;/timeout&gt;
+		&lt;interval&gt;1d&lt;/interval&gt;
+		&lt;scan-on-start&gt;yes&lt;/scan-on-start&gt;
+		&lt;content type=&quot;xccdf&quot; path=&quot;ssg-debian-8-ds.xml&quot;&gt;
+			&lt;profile&gt;xccdf_org.ssgproject.content_profile_common&lt;/profile&gt;
+		&lt;/content&gt;
+		&lt;content type=&quot;oval&quot; path=&quot;cve-debian-oval.xml&quot;/&gt;
+	&lt;/wodle&gt;
+	&lt;!-- File integrity monitoring --&gt;
+	&lt;syscheck&gt;
+		&lt;disabled&gt;no&lt;/disabled&gt;
+		&lt;!-- Frequency that syscheck is executed default every 12 hours --&gt;
+		&lt;frequency&gt;43200&lt;/frequency&gt;
+		&lt;scan_on_start&gt;yes&lt;/scan_on_start&gt;
+		&lt;!-- Directories to check  (perform all possible verifications) --&gt;
+		&lt;directories&gt;/etc,/usr/bin,/usr/sbin&lt;/directories&gt;
+		&lt;directories&gt;/bin,/sbin,/boot&lt;/directories&gt;
+		&lt;!-- Files/directories to ignore --&gt;
+		&lt;ignore&gt;/etc/mtab&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/hosts.deny&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/mail/statistics&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/random-seed&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/random.seed&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/adjtime&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/httpd/logs&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/utmpx&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/wtmpx&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/cups/certs&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/dumpdates&lt;/ignore&gt;
+		&lt;ignore&gt;/etc/svc/volatile&lt;/ignore&gt;
+		&lt;ignore&gt;/sys/kernel/security&lt;/ignore&gt;
+		&lt;ignore&gt;/sys/kernel/debug&lt;/ignore&gt;
+		&lt;!-- File types to ignore --&gt;
+		&lt;ignore type=&quot;sregex&quot;&gt;.log$|.swp$&lt;/ignore&gt;
+		&lt;!-- Check the file, but never compute the diff --&gt;
+		&lt;nodiff&gt;/etc/ssl/private.key&lt;/nodiff&gt;
+		&lt;skip_nfs&gt;yes&lt;/skip_nfs&gt;
+		&lt;skip_dev&gt;yes&lt;/skip_dev&gt;
+		&lt;skip_proc&gt;yes&lt;/skip_proc&gt;
+		&lt;skip_sys&gt;yes&lt;/skip_sys&gt;
+		&lt;!-- Nice value for Syscheck process --&gt;
+		&lt;process_priority&gt;10&lt;/process_priority&gt;
+		&lt;!-- Maximum output throughput --&gt;
+		&lt;max_eps&gt;100&lt;/max_eps&gt;
+		&lt;!-- Database synchronization settings --&gt;
+		&lt;synchronization&gt;
+			&lt;enabled&gt;yes&lt;/enabled&gt;
+			&lt;interval&gt;5m&lt;/interval&gt;
+			&lt;response_timeout&gt;30&lt;/response_timeout&gt;
+			&lt;queue_size&gt;16384&lt;/queue_size&gt;
+			&lt;max_eps&gt;10&lt;/max_eps&gt;
+		&lt;/synchronization&gt;
+	&lt;/syscheck&gt;
+	&lt;!-- Log analysis --&gt;
+	&lt;localfile&gt;
+		&lt;log_format&gt;syslog&lt;/log_format&gt;
+		&lt;location&gt;/var/ossec/logs/active-responses.log&lt;/location&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;log_format&gt;syslog&lt;/log_format&gt;
+		&lt;location&gt;/var/log/messages&lt;/location&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;log_format&gt;syslog&lt;/log_format&gt;
+		&lt;location&gt;/var/log/auth.log&lt;/location&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;log_format&gt;syslog&lt;/log_format&gt;
+		&lt;location&gt;/var/log/syslog&lt;/location&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;log_format&gt;command&lt;/log_format&gt;
+		&lt;command&gt;df -P&lt;/command&gt;
+		&lt;frequency&gt;360&lt;/frequency&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;log_format&gt;full_command&lt;/log_format&gt;
+		&lt;command&gt;netstat -tan |grep LISTEN |grep -v 127.0.0.1 | sort&lt;/command&gt;
+		&lt;frequency&gt;360&lt;/frequency&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;log_format&gt;full_command&lt;/log_format&gt;
+		&lt;command&gt;last -n 5&lt;/command&gt;
+		&lt;frequency&gt;360&lt;/frequency&gt;
+	&lt;/localfile&gt;
+	&lt;wodle name=&quot;osquery&quot;&gt;
+		&lt;disabled&gt;yes&lt;/disabled&gt;
+		&lt;run_daemon&gt;yes&lt;/run_daemon&gt;
+		&lt;log_path&gt;/var/log/osquery/osqueryd.results.log&lt;/log_path&gt;
+		&lt;config_path&gt;/etc/osquery/osquery.conf&lt;/config_path&gt;
+		&lt;add_labels&gt;yes&lt;/add_labels&gt;
+	&lt;/wodle&gt;
+	&lt;wodle name=&quot;syscollector&quot;&gt;
+		&lt;disabled&gt;no&lt;/disabled&gt;
+		&lt;interval&gt;24h&lt;/interval&gt;
+		&lt;scan_on_start&gt;yes&lt;/scan_on_start&gt;
+		&lt;packages&gt;yes&lt;/packages&gt;
+		&lt;os&gt;yes&lt;/os&gt;
+		&lt;hotfixes&gt;yes&lt;/hotfixes&gt;
+		&lt;ports all=&quot;no&quot;&gt;yes&lt;/ports&gt;
+		&lt;processes&gt;yes&lt;/processes&gt;
+	&lt;/wodle&gt;
+&lt;/agent_config&gt;
+</code></pre>
+<h1 id="windows-group">WINDOWS GROUP</h1>
+<pre><code>&lt;agent_config&gt;
+	&lt;client_buffer&gt;
+		&lt;!-- Agent buffer options --&gt;
+		&lt;disabled&gt;no&lt;/disabled&gt;
+		&lt;queue_size&gt;5000&lt;/queue_size&gt;
+		&lt;events_per_second&gt;500&lt;/events_per_second&gt;
+	&lt;/client_buffer&gt;
+	&lt;!-- Policy monitoring --&gt;
+	&lt;rootcheck&gt;
+		&lt;disabled&gt;no&lt;/disabled&gt;
+		&lt;windows_apps&gt;./shared/win_applications_rcl.txt&lt;/windows_apps&gt;
+		&lt;windows_malware&gt;./shared/win_malware_rcl.txt&lt;/windows_malware&gt;
+	&lt;/rootcheck&gt;
+	&lt;sca&gt;
+		&lt;enabled&gt;yes&lt;/enabled&gt;
+		&lt;scan_on_start&gt;yes&lt;/scan_on_start&gt;
+		&lt;interval&gt;12h&lt;/interval&gt;
+		&lt;skip_nfs&gt;yes&lt;/skip_nfs&gt;
+	&lt;/sca&gt;
+	&lt;!-- File integrity monitoring --&gt;
+	&lt;syscheck&gt;
+		&lt;disabled&gt;no&lt;/disabled&gt;
+		&lt;!-- Frequency that syscheck is executed default every 12 hours --&gt;
+		&lt;frequency&gt;43200&lt;/frequency&gt;
+		&lt;!-- Default files to be monitored. --&gt;
+		&lt;directories recursion_level=&quot;0&quot; restrict=&quot;regedit.exe$|system.ini$|win.ini$&quot;&gt;%WINDIR%&lt;/directories&gt;
+		&lt;directories recursion_level=&quot;0&quot; restrict=&quot;at.exe$|attrib.exe$|cacls.exe$|cmd.exe$|eventcreate.exe$|ftp.exe$|lsass.exe$|net.exe$|net1.exe$|netsh.exe$|reg.exe$|regedt32.exe|regsvr32.exe|runas.exe|sc.exe|schtasks.exe|sethc.exe|subst.exe$&quot;&gt;%WINDIR%\SysNative&lt;/directories&gt;
+		&lt;directories recursion_level=&quot;0&quot;&gt;%WINDIR%\SysNative\drivers\etc&lt;/directories&gt;
+		&lt;directories recursion_level=&quot;0&quot; restrict=&quot;WMIC.exe$&quot;&gt;%WINDIR%\SysNative\wbem&lt;/directories&gt;
+		&lt;directories recursion_level=&quot;0&quot; restrict=&quot;powershell.exe$&quot;&gt;%WINDIR%\SysNative\WindowsPowerShell\v1.0&lt;/directories&gt;
+		&lt;directories recursion_level=&quot;0&quot; restrict=&quot;winrm.vbs$&quot;&gt;%WINDIR%\SysNative&lt;/directories&gt;
+		&lt;!-- 32-bit programs. --&gt;
+		&lt;directories recursion_level=&quot;0&quot; restrict=&quot;at.exe$|attrib.exe$|cacls.exe$|cmd.exe$|eventcreate.exe$|ftp.exe$|lsass.exe$|net.exe$|net1.exe$|netsh.exe$|reg.exe$|regedit.exe$|regedt32.exe$|regsvr32.exe$|runas.exe$|sc.exe$|schtasks.exe$|sethc.exe$|subst.exe$&quot;&gt;%WINDIR%\System32&lt;/directories&gt;
+		&lt;directories recursion_level=&quot;0&quot;&gt;%WINDIR%\System32\drivers\etc&lt;/directories&gt;
+		&lt;directories recursion_level=&quot;0&quot; restrict=&quot;WMIC.exe$&quot;&gt;%WINDIR%\System32\wbem&lt;/directories&gt;
+		&lt;directories recursion_level=&quot;0&quot; restrict=&quot;powershell.exe$&quot;&gt;%WINDIR%\System32\WindowsPowerShell\v1.0&lt;/directories&gt;
+		&lt;directories recursion_level=&quot;0&quot; restrict=&quot;winrm.vbs$&quot;&gt;%WINDIR%\System32&lt;/directories&gt;
+		&lt;directories realtime=&quot;yes&quot;&gt;%PROGRAMDATA%\Microsoft\Windows\Start Menu\Programs\Startup&lt;/directories&gt;
+		&lt;ignore&gt;%PROGRAMDATA%\Microsoft\Windows\Start Menu\Programs\Startup\desktop.ini&lt;/ignore&gt;
+		&lt;ignore type=&quot;sregex&quot;&gt;.log$|.htm$|.jpg$|.png$|.chm$|.pnf$|.evtx$&lt;/ignore&gt;
+		&lt;!-- Windows registry entries to monitor. --&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\Software\Classes\batfile&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\Software\Classes\cmdfile&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\Software\Classes\comfile&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\Software\Classes\exefile&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\Software\Classes\piffile&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\Software\Classes\AllFilesystemObjects&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\Software\Classes\Directory&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\Software\Classes\Folder&lt;/windows_registry&gt;
+		&lt;windows_registry arch=&quot;both&quot;&gt;HKEY_LOCAL_MACHINE\Software\Classes\Protocols&lt;/windows_registry&gt;
+		&lt;windows_registry arch=&quot;both&quot;&gt;HKEY_LOCAL_MACHINE\Software\Policies&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\Security&lt;/windows_registry&gt;
+		&lt;windows_registry arch=&quot;both&quot;&gt;HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\KnownDLLs&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SecurePipeServers\winreg&lt;/windows_registry&gt;
+		&lt;windows_registry arch=&quot;both&quot;&gt;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run&lt;/windows_registry&gt;
+		&lt;windows_registry arch=&quot;both&quot;&gt;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce&lt;/windows_registry&gt;
+		&lt;windows_registry&gt;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnceEx&lt;/windows_registry&gt;
+		&lt;windows_registry arch=&quot;both&quot;&gt;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\URL&lt;/windows_registry&gt;
+		&lt;windows_registry arch=&quot;both&quot;&gt;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies&lt;/windows_registry&gt;
+		&lt;windows_registry arch=&quot;both&quot;&gt;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Windows&lt;/windows_registry&gt;
+		&lt;windows_registry arch=&quot;both&quot;&gt;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon&lt;/windows_registry&gt;
+		&lt;windows_registry arch=&quot;both&quot;&gt;HKEY_LOCAL_MACHINE\Software\Microsoft\Active Setup\Installed Components&lt;/windows_registry&gt;
+		&lt;!-- Windows registry entries to ignore. --&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\Security\Policy\Secrets&lt;/registry_ignore&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\Security\SAM\Domains\Account\Users&lt;/registry_ignore&gt;
+		&lt;registry_ignore type=&quot;sregex&quot;&gt;\Enum$&lt;/registry_ignore&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\MpsSvc\Parameters\AppCs&lt;/registry_ignore&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\MpsSvc\Parameters\PortKeywords\DHCP&lt;/registry_ignore&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\MpsSvc\Parameters\PortKeywords\IPTLSIn&lt;/registry_ignore&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\MpsSvc\Parameters\PortKeywords\IPTLSOut&lt;/registry_ignore&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\MpsSvc\Parameters\PortKeywords\RPC-EPMap&lt;/registry_ignore&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\MpsSvc\Parameters\PortKeywords\Teredo&lt;/registry_ignore&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\PolicyAgent\Parameters\Cache&lt;/registry_ignore&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnceEx&lt;/registry_ignore&gt;
+		&lt;registry_ignore&gt;HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\ADOVMPPackage\Final&lt;/registry_ignore&gt;
+		&lt;!-- Frequency for ACL checking (seconds) --&gt;
+		&lt;windows_audit_interval&gt;60&lt;/windows_audit_interval&gt;
+		&lt;!-- Nice value for Syscheck module --&gt;
+		&lt;process_priority&gt;10&lt;/process_priority&gt;
+		&lt;!-- Maximum output throughput --&gt;
+		&lt;max_eps&gt;100&lt;/max_eps&gt;
+		&lt;!-- Database synchronization settings --&gt;
+		&lt;synchronization&gt;
+			&lt;enabled&gt;yes&lt;/enabled&gt;
+			&lt;interval&gt;5m&lt;/interval&gt;
+			&lt;max_interval&gt;1h&lt;/max_interval&gt;
+			&lt;max_eps&gt;10&lt;/max_eps&gt;
+		&lt;/synchronization&gt;
+	&lt;/syscheck&gt;
+	&lt;!-- System inventory --&gt;
+	&lt;wodle name=&quot;syscollector&quot;&gt;
+		&lt;disabled&gt;no&lt;/disabled&gt;
+		&lt;interval&gt;1h&lt;/interval&gt;
+		&lt;scan_on_start&gt;yes&lt;/scan_on_start&gt;
+		&lt;hardware&gt;yes&lt;/hardware&gt;
+		&lt;os&gt;yes&lt;/os&gt;
+		&lt;network&gt;yes&lt;/network&gt;
+		&lt;packages&gt;yes&lt;/packages&gt;
+		&lt;ports all=&quot;no&quot;&gt;yes&lt;/ports&gt;
+		&lt;processes&gt;yes&lt;/processes&gt;
+		&lt;!-- Database synchronization settings --&gt;
+		&lt;synchronization&gt;
+			&lt;max_eps&gt;10&lt;/max_eps&gt;
+		&lt;/synchronization&gt;
+	&lt;/wodle&gt;
+	&lt;!-- CIS policies evaluation --&gt;
+	&lt;wodle name=&quot;cis-cat&quot;&gt;
+		&lt;disabled&gt;yes&lt;/disabled&gt;
+		&lt;timeout&gt;1800&lt;/timeout&gt;
+		&lt;interval&gt;1d&lt;/interval&gt;
+		&lt;scan-on-start&gt;yes&lt;/scan-on-start&gt;
+		&lt;java_path&gt;\\server\jre\bin\java.exe&lt;/java_path&gt;
+		&lt;ciscat_path&gt;C:\cis-cat&lt;/ciscat_path&gt;
+	&lt;/wodle&gt;
+	&lt;!-- Osquery integration --&gt;
+	&lt;wodle name=&quot;osquery&quot;&gt;
+		&lt;disabled&gt;yes&lt;/disabled&gt;
+		&lt;run_daemon&gt;yes&lt;/run_daemon&gt;
+		&lt;bin_path&gt;C:\Program Files\osquery\osqueryd&lt;/bin_path&gt;
+		&lt;log_path&gt;C:\Program Files\osquery\log\osqueryd.results.log&lt;/log_path&gt;
+		&lt;config_path&gt;C:\Program Files\osquery\osquery.conf&lt;/config_path&gt;
+		&lt;add_labels&gt;yes&lt;/add_labels&gt;
+	&lt;/wodle&gt;
+	&lt;!-- Active response --&gt;
+	&lt;active-response&gt;
+		&lt;disabled&gt;no&lt;/disabled&gt;
+		&lt;ca_store&gt;wpk_root.pem&lt;/ca_store&gt;
+		&lt;ca_verification&gt;yes&lt;/ca_verification&gt;
+	&lt;/active-response&gt;
+	&lt;!-- Log analysis --&gt;
+	&lt;localfile&gt;
+		&lt;location&gt;Microsoft-Windows-Sysmon/Operational&lt;/location&gt;
+		&lt;log_format&gt;eventchannel&lt;/log_format&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;location&gt;Windows PowerShell&lt;/location&gt;
+		&lt;log_format&gt;eventchannel&lt;/log_format&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;location&gt;Microsoft-Windows-CodeIntegrity/Operational&lt;/location&gt;
+		&lt;log_format&gt;eventchannel&lt;/log_format&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;location&gt;Microsoft-Windows-TaskScheduler/Operational&lt;/location&gt;
+		&lt;log_format&gt;eventchannel&lt;/log_format&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;location&gt;Microsoft-Windows-PowerShell/Operational&lt;/location&gt;
+		&lt;log_format&gt;eventchannel&lt;/log_format&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;location&gt;Microsoft-Windows-Windows Firewall With Advanced Security/Firewall&lt;/location&gt;
+		&lt;log_format&gt;eventchannel&lt;/log_format&gt;
+	&lt;/localfile&gt;
+	&lt;localfile&gt;
+		&lt;location&gt;Microsoft-Windows-Windows Defender/Operational&lt;/location&gt;
+		&lt;log_format&gt;eventchannel&lt;/log_format&gt;
+	&lt;/localfile&gt;
+&lt;/agent_config&gt;
+</code></pre>
+<h4 id="6-restart-wazuh-manager">6. Restart Wazuh Manager.</h4>
+<pre><code>$  systemctl restart wazuh-manager
+</code></pre>
+<h3 id="after-you-complete-these-step-you-must-get-the-data-flow-from-the-wazuh-to-your-graylog-input-which-we-have-cerated-realier">After you complete these step you must get the data flow from the wazuh to your graylog input which we have cerated realier.</h3>
+<h2 id=""><img src="file:///c:\Users\MANAN PATEL\Desktop\Forenzy_Manan_Docs_2\images\graylog-wazuh-1.png" alt=""></h2>
+<h2 id="note-">Note :</h2>
+<ul>
+<li>Here we have done the basic configurations but it is recommanded that you also follow some extra steps to configure the system properly. The reference for extra configurations is given below</li>
+</ul>
+<h3 id="wazuh-agent-install--deploy-the-wazuh-agent-to-your-endpoints"><strong><a href="https://socfortress.medium.com/part-4-wazuh-agent-install-endpoint-monitoring-f24f6a0464ac">Wazuh Agent Install — Deploy the Wazuh Agent to your endpoints.</a></strong></h3>
+<h3 id="intelligent-siem-logging--take-control-of-your-logs-with-graylog"><strong><a href="https://medium.com/@socfortress/part-5-intelligent-siem-logging-4d0656c0da5b">Intelligent SIEM Logging — Take control of your logs with Graylog.</a></strong></h3>
+<hr>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>
